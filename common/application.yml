@@ -4,4 +4,4 @@ spring:
   application:
     name: ${SPRING_APPLICATION_NAME}
 user:
-  nickname: 세이지2
+  nickname: 세이지vs
