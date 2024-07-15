@@ -7,3 +7,5 @@ spring:
       label: main
   config:
     import: "optional:configserver:"
+  user:
+    nickname: 세이지vsc
