@@ -1,2 +1,7 @@
 user:
   nickname: 세이지new
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info
