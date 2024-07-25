@@ -3,6 +3,37 @@ server:
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME}
+  datasource:
+    driver-class-name: ${DB_DRIVER}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    #password: ${DB_PASSWORD:{cipher}a68de9b0597cdb81a077bc626aa714f834e6798e9c0aa53c26d5cefb2c525d06}
+    #암호화한 값을 사용할 때는 위와 같은 형식은 사용 못함
+    # curl -X POST http://localhost:9001/encrypt -d "P@ssw0rd$"
+    password: '{cipher}dbf7229281926da83068aee04aca0fdbc170fa0bdc476e8e9241f1f4e827ba3c'
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+jwt:
+  #JWT secret키는 암호화하면 동작 안함
+  #secret: '{cipher}0c77292c64cf9ac384d29b89d92a69f9ca8c2ce96da81d36946515f6e85cd1dcd31b86547b56ec86cbba773af5f77da1657411cb6d7d133417228abbde727a197c14f17fda2059a9bc7c7fb671b2600614caf65b55618bb4b512854df55ca844e5f1d89dd392051e1cc0a1cd0ddf16d8'
+  secret: 8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ==
+
+AllowedOrigins: ${FRONT_HOST}
+
+# Logging
+logging:
+  level:
+    root: INFO
 
 # Eureka client 설정
 # hostname은 서버를 구별하는 유일한 값이면 됨. instanceId는 Eureka에 등록된느 ID임 (라우팅할 때 주소 아님)
@@ -16,17 +47,24 @@ spring:
 # (Deployment로 배포한 Pod는 고유 주소가 생기지 않기 때문임)
 eureka:
   instance:
-    hostname: ${SERVER_HOST:localhost}
-    instanceId: ${SERVER_HOST:localhost}
+    #hostname: ${HOSTNAME}.${APPLICATION_NAME}-headless.${NAMESPACE}.svc.cluster.local
+    hostname: ${HOSTNAME}
+    instanceId: ${HOSTNAME}:${SERVER_PORT}
     preferIpAddress: true
-    nonSecurePort: ${SERVER_PORT:19080}
+    nonSecurePort: ${SERVER_PORT}
     securePort: 443
     nonSecurePortEnabled: true
     securePortEnabled: false
     lease-renewal-interval-in-seconds: 5
     lease-expiration-duration-in-seconds: 10
   client:
-    service-url:
-      defaultZone: ${EUREKA_SERVERS:http://eureka1.127.0.0.1.nip.io:8761/eureka/,http://eureka2.127.0.0.1.nip.io:8762/eureka/}
-    registryFetchIntervalSeconds: 60
-    instanceInfoReplicationIntervalSeconds: 60
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVERS}
+
+# Actuator는 서버의 여러 정보를 제공해 주는 라이브러리
+# {ingress host}/actuator/health와 같이 결과값을 구할 수 있음
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env, mappings, routes
